@@ -1,17 +1,26 @@
 (function () {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations().then((regs) => {
+      regs.forEach((reg) => reg.unregister());
+    });
+  }
+
   const c = window.CARTA;
   if (!c) {
-    console.error("content.js não carregou. Confira se o arquivo existe na raiz do site.");
+    console.error(
+      "content.js não carregou. Confira se o arquivo existe na raiz do site."
+    );
     return;
   }
 
   const $ = (id) => document.getElementById(id);
-  const reduzMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduzMovimento = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
 
-  const titulo = (c.tituloPagina || "Para {nome}, de {remetente}")
+  document.title = (c.tituloPagina || "Para {nome}, de {remetente}")
     .replace("{nome}", c.destinataria)
     .replace("{remetente}", c.remetente);
-  document.title = titulo;
 
   $("pular").textContent = c.pularParaEnvelope || "Ir para o envelope";
   $("kicker").textContent = c.kickerCapa || "";
@@ -28,8 +37,6 @@
     )
   );
 
-  $("feliz").textContent = c.felizAniversario;
-  $("celebracao-toque").textContent = c.toqueParaLer || "";
   $("carta-data").textContent = c.data || "";
   $("carta-saudacao").textContent = c.saudacao || c.destinataria;
   $("carta-feliz").textContent = c.felizAniversario;
@@ -47,155 +54,235 @@
     $("aviso").textContent = c.avisoPlaceholder;
   }
 
-  const texto = $("carta-texto");
   (c.paragrafos || []).forEach((par) => {
     const p = document.createElement("p");
     p.textContent = par;
-    texto.appendChild(p);
+    $("carta-texto").appendChild(p);
   });
 
-  const memorias = c.memorias || [];
-  const cores = ["#ffe27a", "#ffb3c1", "#d7c2ff", "#a8e6cf", "#ffc89a", "#c9e4ff"];
-  const giros = [-14, 9, -4, 18, -10, 6, 22, -18];
-  const saltos = [8, -4, 10, 2, -6, 6, -2, 9];
-  const abertas = new Set();
+  /* ---------- Confete ao abrir ---------- */
 
-  function atualizarContador() {
-    const total = memorias.length;
-    if (abertas.size === total) {
-      $("pote-contador").textContent = c.poteTodas;
-      return;
-    }
-    $("pote-contador").textContent = (c.poteContador || "{abertas} de {total} abertas.")
-      .replace("{abertas}", String(abertas.size))
-      .replace("{total}", String(total));
-  }
+  const canvasConfete = $("confetti");
+  const ctxConfete = canvasConfete.getContext("2d");
+  let confetes = [];
+  let animConfete = false;
 
-  if (memorias.length) {
-    $("pote").hidden = false;
-    $("pote-titulo").textContent = c.poteTitulo;
-    $("pote-dica").textContent = c.poteDica;
-    $("memoria-guardar").textContent = c.poteGuardar;
-    atualizarContador();
-
-    memorias.forEach((recado, i) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "papel";
-      btn.setAttribute(
-        "aria-label",
-        (c.poteAria || "Abrir memória {n}").replace("{n}", String(i + 1))
-      );
-      const cor = cores[i % cores.length];
-      btn.style.setProperty("--cor", cor);
-      btn.style.setProperty("--giro", `${giros[i % giros.length]}deg`);
-      btn.style.setProperty("--salto", `${saltos[i % saltos.length]}px`);
-      btn.addEventListener("click", () => {
-        $("memoria-texto").textContent = recado;
-        $("memoria").style.setProperty("--cor", cor);
-        $("memoria").showModal();
-        abertas.add(i);
-        btn.classList.add("aberto");
-        atualizarContador();
-      });
-      $("pote-papeis").appendChild(btn);
-    });
-
-    const dlg = $("memoria");
-    $("memoria-guardar").addEventListener("click", () => dlg.close());
-    dlg.addEventListener("click", (e) => {
-      if (e.target === dlg) dlg.close();
-    });
-  }
-
-  /* ---------- Confete ---------- */
-
-  const canvas = $("confetti");
-  const ctx = canvas.getContext("2d");
-  let pecas = [];
-  let animando = false;
-
-  function tamanhoCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+  function redimensionarConfete() {
+    canvasConfete.width = window.innerWidth;
+    canvasConfete.height = window.innerHeight;
   }
 
   function estourarConfete() {
     if (reduzMovimento) return;
-    tamanhoCanvas();
-    canvas.hidden = false;
-    const coresConfete = ["#c9a6f0", "#e8c56a", "#fff8ee", "#ffb3c1", "#a8e6cf", "#d7c2ff"];
-    pecas = Array.from({ length: 110 }, () => {
-      const pinguim = Math.random() < 0.14;
-      return {
-        x: canvas.width * 0.5 + (Math.random() - 0.5) * 80,
-        y: canvas.height * 0.38,
-        vx: (Math.random() - 0.5) * 11,
-        vy: Math.random() * -11 - 4,
-        g: 0.16 + Math.random() * 0.08,
-        w: 6 + Math.random() * 6,
-        h: 8 + Math.random() * 8,
-        r: Math.random() * Math.PI,
-        vr: (Math.random() - 0.5) * 0.25,
-        cor: coresConfete[Math.floor(Math.random() * coresConfete.length)],
-        pinguim,
-        font: 14 + Math.random() * 10,
-      };
-    });
-    if (!animando) {
-      animando = true;
-      pedirFrame();
+    redimensionarConfete();
+    canvasConfete.hidden = false;
+    const cores = [
+      "#c9a6f0",
+      "#e8c56a",
+      "#fff8ee",
+      "#ffb3c1",
+      "#d7c2ff",
+    ];
+    confetes = Array.from({ length: 90 }, () => ({
+      x: window.innerWidth * 0.5 + (Math.random() - 0.5) * 60,
+      y: window.innerHeight * 0.42,
+      vx: (Math.random() - 0.5) * 10,
+      vy: Math.random() * -10 - 3,
+      g: 0.15 + Math.random() * 0.07,
+      w: 5 + Math.random() * 5,
+      h: 7 + Math.random() * 6,
+      r: Math.random() * Math.PI,
+      vr: (Math.random() - 0.5) * 0.2,
+      cor: cores[Math.floor(Math.random() * cores.length)],
+      pinguim: Math.random() < 0.12,
+      font: 12 + Math.random() * 8,
+    }));
+    if (!animConfete) {
+      animConfete = true;
+      frameConfete();
     }
   }
 
-  function pedirFrame() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    pecas.forEach((p) => {
+  function frameConfete() {
+    ctxConfete.clearRect(0, 0, canvasConfete.width, canvasConfete.height);
+    confetes.forEach((p) => {
       p.vy += p.g;
       p.x += p.vx;
       p.y += p.vy;
       p.r += p.vr;
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.r);
+      ctxConfete.save();
+      ctxConfete.translate(p.x, p.y);
+      ctxConfete.rotate(p.r);
       if (p.pinguim) {
-        ctx.font = `${p.font}px serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("🐧", 0, 0);
+        ctxConfete.font = `${p.font}px serif`;
+        ctxConfete.textAlign = "center";
+        ctxConfete.textBaseline = "middle";
+        ctxConfete.fillText("🐧", 0, 0);
       } else {
-        ctx.fillStyle = p.cor;
-        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctxConfete.fillStyle = p.cor;
+        ctxConfete.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
       }
-      ctx.restore();
+      ctxConfete.restore();
     });
-    pecas = pecas.filter((p) => p.y < canvas.height + 30);
-    if (pecas.length) {
-      requestAnimationFrame(pedirFrame);
-    } else {
-      animando = false;
-      canvas.hidden = true;
+    confetes = confetes.filter((p) => p.y < canvasConfete.height + 20);
+    if (confetes.length) requestAnimationFrame(frameConfete);
+    else {
+      animConfete = false;
+      canvasConfete.hidden = true;
     }
   }
 
+  /* ---------- Chuva de pinguins no fim da carta ---------- */
+
+  const canvasPinguins = $("pinguins");
+  const ctxPinguins = canvasPinguins.getContext("2d");
+  let partículas = [];
+  let animPinguins = false;
+  let burstDisparado = false;
+  let limpaBurst;
+
+  function redimensionarPinguins() {
+    canvasPinguins.width = window.innerWidth;
+    canvasPinguins.height = window.innerHeight;
+  }
+
+  function desenharPinguim(ctx, size, festa) {
+    ctx.font = `${size}px serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    if (festa) {
+      ctx.beginPath();
+      ctx.moveTo(0, -size * 0.72);
+      ctx.lineTo(size * 0.22, -size * 0.42);
+      ctx.lineTo(-size * 0.22, -size * 0.42);
+      ctx.closePath();
+      ctx.fillStyle = "#c9a6f0";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(0, -size * 0.58, size * 0.09, 0, Math.PI * 2);
+      ctx.fillStyle = "#e8c56a";
+      ctx.fill();
+    }
+    ctx.fillText("🐧", 0, 0);
+  }
+
+  function dispararPinguins() {
+    if (reduzMovimento || burstDisparado) return;
+    burstDisparado = true;
+    redimensionarPinguins();
+    canvasPinguins.hidden = false;
+
+    const cores = ["#c9a6f0", "#e8c56a", "#d7c2ff", "#ffb3c1", "#e9d7ff"];
+    partículas = Array.from({ length: 95 }, (_, i) => {
+      const pinguim = i < 78;
+      return {
+        tipo: pinguim ? "pinguim" : "confete",
+        x: Math.random() * canvasPinguins.width,
+        y: -20 - Math.random() * canvasPinguins.height * 0.5,
+        vx: (Math.random() - 0.5) * 4,
+        vy: 2 + Math.random() * 5,
+        g: 0.11 + Math.random() * 0.06,
+        r: Math.random() * Math.PI,
+        vr: (Math.random() - 0.5) * 0.15,
+        size: 20 + Math.random() * 22,
+        festa: pinguim && Math.random() < 0.45,
+        w: 4 + Math.random() * 5,
+        h: 6 + Math.random() * 6,
+        cor: cores[Math.floor(Math.random() * cores.length)],
+        bounce: 0.35 + Math.random() * 0.15,
+        vida: 0,
+      };
+    });
+
+    if (!animPinguins) {
+      animPinguins = true;
+      framePinguins();
+    }
+
+    clearTimeout(limpaBurst);
+    limpaBurst = setTimeout(() => {
+      partículas = [];
+      animPinguins = false;
+      ctxPinguins.clearRect(0, 0, canvasPinguins.width, canvasPinguins.height);
+      canvasPinguins.hidden = true;
+    }, 4800);
+  }
+
+  function framePinguins() {
+    const chao = canvasPinguins.height - 8;
+    ctxPinguins.clearRect(0, 0, canvasPinguins.width, canvasPinguins.height);
+
+    partículas.forEach((p) => {
+      p.vida += 1;
+      p.vy += p.g;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.r += p.vr;
+
+      if (p.y > chao) {
+        p.y = chao;
+        p.vy *= -p.bounce;
+        p.vx *= 0.92;
+        if (Math.abs(p.vy) < 1.2) p.vy = 0;
+      }
+
+      ctxPinguins.save();
+      ctxPinguins.translate(p.x, p.y);
+      ctxPinguins.rotate(p.r);
+      if (p.tipo === "pinguim") {
+        desenharPinguim(ctxPinguins, p.size, p.festa);
+      } else {
+        ctxPinguins.fillStyle = p.cor;
+        ctxPinguins.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      }
+      ctxPinguins.restore();
+    });
+
+    partículas = partículas.filter(
+      (p) => p.vida < 280 && (p.y < canvasPinguins.height + 40 || p.vy !== 0)
+    );
+
+    if (partículas.length && animPinguins) {
+      requestAnimationFrame(framePinguins);
+    } else if (!partículas.length) {
+      animPinguins = false;
+    }
+  }
+
+  const fim = $("fim-carta");
+  if (fim && !reduzMovimento) {
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          dispararPinguins();
+          obs.disconnect();
+        }
+      },
+      { root: null, threshold: 0.6, rootMargin: "0px 0px -40px 0px" }
+    );
+    obs.observe(fim);
+  }
+
   window.addEventListener("resize", () => {
-    if (!canvas.hidden) tamanhoCanvas();
+    if (!canvasConfete.hidden) redimensionarConfete();
+    if (!canvasPinguins.hidden) redimensionarPinguins();
   });
 
-  /* ---------- Abrir / fechar ---------- */
+  /* ---------- Abrir / fechar envelope ---------- */
 
   let ocupado = false;
-  let esperaCelebracao;
+  const TEMPO_ABA = reduzMovimento ? 0 : 750;
+  const TEMPO_CARTA = reduzMovimento ? 0 : 950;
 
-  function mostrarCarta() {
+  function revelarCarta() {
     $("capa").hidden = true;
-    $("celebracao").hidden = true;
-    $("celebracao").classList.remove("saindo");
+    $("capa").classList.remove("sumindo");
     const carta = $("carta");
     carta.hidden = false;
-    carta.classList.remove("entrando");
+    carta.classList.remove("entrando", "expandindo");
     void carta.offsetWidth;
-    if (!reduzMovimento) carta.classList.add("entrando");
+    if (!reduzMovimento) carta.classList.add("expandindo");
+    document.body.classList.remove("abrindo", "carta-saindo");
     window.scrollTo(0, 0);
     $("carta-saudacao").focus({ preventScroll: true });
     ocupado = false;
@@ -204,35 +291,36 @@
   function abrirEnvelope() {
     if (ocupado) return;
     ocupado = true;
+
     if (reduzMovimento) {
-      mostrarCarta();
+      revelarCarta();
       return;
     }
+
     document.body.classList.add("abrindo");
-    esperaCelebracao = setTimeout(() => {
+    setTimeout(() => {
+      document.body.classList.add("carta-saindo");
       estourarConfete();
-      $("celebracao").hidden = false;
-      esperaCelebracao = setTimeout(() => {
-        $("celebracao").classList.add("saindo");
-        setTimeout(mostrarCarta, 400);
-      }, 1700);
-    }, 900);
+    }, TEMPO_ABA * 0.55);
+
+    setTimeout(() => {
+      $("capa").classList.add("sumindo");
+    }, TEMPO_ABA + TEMPO_CARTA * 0.35);
+
+    setTimeout(revelarCarta, TEMPO_ABA + TEMPO_CARTA);
   }
 
   $("envelope").addEventListener("click", abrirEnvelope);
 
-  $("celebracao").addEventListener("click", () => {
-    clearTimeout(esperaCelebracao);
-    $("celebracao").classList.add("saindo");
-    setTimeout(mostrarCarta, reduzMovimento ? 0 : 250);
-  });
-
   $("guardar").addEventListener("click", () => {
     $("carta").hidden = true;
+    $("carta").classList.remove("expandindo", "entrando");
     $("capa").hidden = false;
+    $("capa").classList.remove("sumindo");
+    burstDisparado = false;
     window.scrollTo(0, 0);
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => document.body.classList.remove("abrindo"));
+      document.body.classList.remove("abrindo", "carta-saindo");
     });
     $("envelope").focus({ preventScroll: true });
     ocupado = false;
