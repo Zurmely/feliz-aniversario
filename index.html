@@ -12,21 +12,28 @@
       name="description"
       content="Uma carta de aniversário para abrir com carinho."
     />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Feliz aniversário</title>
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="favicon.svg?v=20251113-v2" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Great+Vibes&family=Outfit:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20251113-v2" />
   </head>
   <body>
     <a id="pular" class="skip" href="#envelope"></a>
 
     <div class="sparkles" aria-hidden="true"></div>
     <canvas id="confetti" class="confetti" hidden></canvas>
+    <canvas id="pinguins" class="pinguins" hidden></canvas>
 
     <section id="capa" class="capa" aria-label="Capa com envelope">
       <div class="brilho" aria-hidden="true"></div>
@@ -52,34 +59,46 @@
         class="envelope"
         aria-describedby="dica"
       >
-        <span class="envelope__sombra" aria-hidden="true"></span>
-        <span class="envelope__forro" aria-hidden="true"></span>
-        <span class="envelope__papel" aria-hidden="true"></span>
-        <span class="envelope__corpo">
-          <span class="envelope__para">Para</span>
-          <span id="envelope-nome" class="envelope__nome"></span>
-          <span class="envelope__de">de <span id="envelope-de"></span></span>
-        </span>
-        <span class="envelope__aba" aria-hidden="true"></span>
-        <span class="envelope__selo envelope__selo--pinguim" aria-hidden="true">
-          <img src="penguin.svg" width="52" height="52" alt="" />
+        <span class="envelope__cena">
+          <span class="envelope__sombra" aria-hidden="true"></span>
+          <span
+            class="envelope__costas envelope__papel-env"
+            aria-hidden="true"
+          ></span>
+          <span
+            class="envelope__dobra envelope__dobra--esq envelope__papel-env envelope__papel-env--forro"
+            aria-hidden="true"
+          ></span>
+          <span
+            class="envelope__dobra envelope__dobra--dir envelope__papel-env envelope__papel-env--forro"
+            aria-hidden="true"
+          ></span>
+          <span class="envelope__cartinha" aria-hidden="true"></span>
+          <span class="envelope__frente envelope__papel-env" aria-hidden="true">
+            <span class="envelope__endereco">
+              <span class="envelope__para">Para</span>
+              <span id="envelope-nome" class="envelope__nome"></span>
+              <span class="envelope__de"
+                >de <span id="envelope-de"></span></span
+              >
+            </span>
+          </span>
+          <span class="envelope__aba envelope__papel-env" aria-hidden="true"></span>
+          <span class="envelope__lacre" aria-hidden="true">
+            <span class="envelope__lacre-cera"></span>
+            <img
+              class="envelope__lacre-pinguim"
+              src="penguin.svg?v=20251113-v2"
+              width="44"
+              height="44"
+              alt=""
+            />
+          </span>
         </span>
       </button>
 
       <p id="dica" class="dica"></p>
     </section>
-
-    <div
-      id="celebracao"
-      class="celebracao"
-      hidden
-      role="status"
-      aria-live="polite"
-    >
-      <p id="feliz" class="celebracao__titulo"></p>
-      <p class="celebracao__pinguim" aria-hidden="true">🐧</p>
-      <p id="celebracao-toque" class="celebracao__toque"></p>
-    </div>
 
     <article id="carta" class="carta" hidden>
       <p id="aviso" class="aviso" hidden></p>
@@ -93,29 +112,12 @@
         <p id="despedida"></p>
         <p id="assinatura" class="carta__nome"></p>
       </footer>
-
-      <section id="pote" class="pote" hidden>
-        <h2 id="pote-titulo" class="pote__titulo"></h2>
-        <p id="pote-dica" class="pote__dica"></p>
-        <p id="pote-contador" class="pote__contador"></p>
-
-        <div class="pote__vidro">
-          <div class="pote__tampa" aria-hidden="true"></div>
-          <div id="pote-papeis" class="pote__corpo"></div>
-        </div>
-      </section>
+      <span id="fim-carta" class="fim-carta" aria-hidden="true"></span>
 
       <button type="button" id="guardar" class="guardar"></button>
     </article>
 
-    <dialog id="memoria" class="memoria" aria-labelledby="memoria-texto">
-      <div class="memoria__papel">
-        <p id="memoria-texto"></p>
-      </div>
-      <button type="button" id="memoria-guardar" class="memoria__guardar"></button>
-    </dialog>
-
-    <script src="content.js"></script>
-    <script src="app.js"></script>
+    <script src="content.js?v=20251113-v2"></script>
+    <script src="app.js?v=20251113-v2"></script>
   </body>
 </html>

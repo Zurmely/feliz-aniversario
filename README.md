@@ -1,17 +1,18 @@
 # Feliz aniversário
 
-Site estático de uma carta de aniversário — envelope, carta e pote de memórias — para o domínio [feliz-aniversario.zurmely.com](https://feliz-aniversario.zurmely.com).
+Site estático de uma carta de aniversário — envelope animado e carta — para o domínio [feliz-aniversario.zurmely.com](https://feliz-aniversario.zurmely.com).
 
 GitHub Pages serve os arquivos da raiz de `main`. Não há passo de build.
 
+**Versão atual dos assets:** `20251113-v2` (query `?v=20251113-v2` em CSS, JS, SVG). Ao publicar mudanças, atualize esse sufixo em `index.html`, `styles.css` (url do pinguim) e nas meta tags de cache já estão no HTML.
+
 ## Como editar o texto
 
-**Todo o conteúdo visível está em [`content.js`](content.js).** Nomes, data, parágrafos da carta, assinatura e os recadinhos do pote. Não é preciso mexer em HTML, CSS nem no restante do JavaScript.
+**Todo o conteúdo visível está em [`content.js`](content.js).** Nomes, data, parágrafos da carta e assinatura. Não é preciso mexer em HTML, CSS nem no restante do JavaScript.
 
 1. Abra `content.js`.
 2. Troque os campos (há comentários em português em cada um).
-3. Deixe `avisoPlaceholder` vazio (`""`) quando a carta real estiver pronta — a faixa amarela some.
-4. Recarregue a página.
+3. Recarregue a página.
 
 ## Arquivos
 
@@ -20,6 +21,6 @@ GitHub Pages serve os arquivos da raiz de `main`. Não há passo de build.
 | `content.js`   | Texto da carta (edite só este)              |
 | `index.html`   | Estrutura da página                         |
 | `styles.css`   | Visual roxo / lilás                         |
-| `app.js`       | Envelope, confete e pote de memórias        |
+| `app.js`       | Envelope, confete e chuva de pinguins       |
 | `CNAME`        | Domínio `feliz-aniversario.zurmely.com`     |
 | `.nojekyll`    | Impede o Jekyll de processar o site         |
