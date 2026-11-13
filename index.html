@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#2a1648" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="Uma carta de aniversário para abrir com carinho."
+    />
+    <title>Feliz aniversário</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Great+Vibes&family=Outfit:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a id="pular" class="skip" href="#envelope"></a>
+
+    <div class="sparkles" aria-hidden="true"></div>
+    <canvas id="confetti" class="confetti" hidden></canvas>
+
+    <section id="capa" class="capa" aria-label="Capa com envelope">
+      <div class="brilho" aria-hidden="true"></div>
+      <div class="balao balao--a" aria-hidden="true"></div>
+      <div class="balao balao--b" aria-hidden="true"></div>
+      <div class="balao balao--c" aria-hidden="true"></div>
+      <div class="balao balao--d" aria-hidden="true"></div>
+      <div class="pinguim pinguim--a" aria-hidden="true"></div>
+      <div class="pinguim pinguim--b" aria-hidden="true"></div>
+      <div class="pinguim pinguim--c" aria-hidden="true"></div>
+
+      <header class="capa__texto">
+        <p id="kicker" class="capa__kicker"></p>
+        <h1 class="capa__titulo">
+          Para <span id="capa-nome"></span>,
+        </h1>
+        <p class="capa__de">de <span id="capa-de"></span></p>
+      </header>
+
+      <button
+        type="button"
+        id="envelope"
+        class="envelope"
+        aria-describedby="dica"
+      >
+        <span class="envelope__sombra" aria-hidden="true"></span>
+        <span class="envelope__forro" aria-hidden="true"></span>
+        <span class="envelope__papel" aria-hidden="true"></span>
+        <span class="envelope__corpo">
+          <span class="envelope__para">Para</span>
+          <span id="envelope-nome" class="envelope__nome"></span>
+          <span class="envelope__de">de <span id="envelope-de"></span></span>
+        </span>
+        <span class="envelope__aba" aria-hidden="true"></span>
+        <span class="envelope__selo envelope__selo--pinguim" aria-hidden="true">
+          <img src="penguin.svg" width="52" height="52" alt="" />
+        </span>
+      </button>
+
+      <p id="dica" class="dica"></p>
+    </section>
+
+    <div
+      id="celebracao"
+      class="celebracao"
+      hidden
+      role="status"
+      aria-live="polite"
+    >
+      <p id="feliz" class="celebracao__titulo"></p>
+      <p class="celebracao__pinguim" aria-hidden="true">🐧</p>
+      <p id="celebracao-toque" class="celebracao__toque"></p>
+    </div>
+
+    <article id="carta" class="carta" hidden>
+      <p id="aviso" class="aviso" hidden></p>
+
+      <p id="carta-data" class="carta__data"></p>
+      <h2 id="carta-saudacao" class="carta__saudacao" tabindex="-1"></h2>
+      <p id="carta-feliz" class="carta__feliz"></p>
+      <div id="carta-texto" class="carta__texto"></div>
+
+      <footer class="carta__assinatura">
+        <p id="despedida"></p>
+        <p id="assinatura" class="carta__nome"></p>
+      </footer>
+
+      <section id="pote" class="pote" hidden>
+        <h2 id="pote-titulo" class="pote__titulo"></h2>
+        <p id="pote-dica" class="pote__dica"></p>
+        <p id="pote-contador" class="pote__contador"></p>
+
+        <div class="pote__vidro">
+          <div class="pote__tampa" aria-hidden="true"></div>
+          <div id="pote-papeis" class="pote__corpo"></div>
+        </div>
+      </section>
+
+      <button type="button" id="guardar" class="guardar"></button>
+    </article>
+
+    <dialog id="memoria" class="memoria" aria-labelledby="memoria-texto">
+      <div class="memoria__papel">
+        <p id="memoria-texto"></p>
+      </div>
+      <button type="button" id="memoria-guardar" class="memoria__guardar"></button>
+    </dialog>
+
+    <script src="content.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
